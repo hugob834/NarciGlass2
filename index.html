@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
     <title>Smart Mirror – Interface Complète</title>
 
     <style>
@@ -415,6 +417,68 @@
         .settings-btn-large:hover {
             background: rgba(255, 255, 255, 0.25);
             transform: scale(1.05);
+        }
+
+        @media screen and (orientation: portrait) {
+            #mirrorPage {
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .mirror-topbar {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                font-size: 1.2rem;
+            }
+
+            .mirror-widgets {
+                font-size: 1.1rem;
+                line-height: 1.6rem;
+                margin-top: 20px;
+            }
+
+            .mirror-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+                padding-bottom: 20px;
+            }
+
+            .action-btn {
+                width: 42%;
+                font-size: 1rem;
+                padding: 12px;
+            }
+
+            .mirror-panel {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+        }
+
+        @media screen and (orientation: landscape) {
+            #mirrorPage {
+                flex-direction: column;
+                padding: 40px;
+            }
+
+            .mirror-topbar {
+                flex-direction: row;
+                font-size: 1.6rem;
+            }
+
+            .mirror-actions {
+                flex-direction: row;
+                gap: 25px;
+            }
+
+            .action-btn {
+                width: auto;
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -1243,11 +1307,11 @@
 
             common.forEach(b => {
                 grid.innerHTML += `
-            <div class="icon-btn" onclick="${b.action || ''}">
-                <img src="${b.icon}">
-                <div class="icon-label">${b.label}</div>
-            </div>
-        `;
+                    <div class="icon-btn" onclick="${b.action || ''}">
+                        <img src="${b.icon}">
+                        <div class="icon-label">${b.label}</div>
+                    </div>
+                `;
             });
         }
 
@@ -2263,6 +2327,14 @@
                     return `<p>Narcisse réfléchit...</p>`;
             }
         }
+
+        window.addEventListener("orientationchange", () => {
+            setTimeout(() => {
+                loadMirrorWidgets();
+                loadMirrorActions();
+            }, 300);
+        });
+
 
 
 
