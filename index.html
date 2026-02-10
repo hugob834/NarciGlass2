@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Mirror – Interface Complète</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        /* FOND PLEIN ÉCRAN */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background:
+                linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.65)),
+                url("https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg");
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #f5f5f7;
+
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cache la scrollbar mais garde le scroll */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        * {
+            scrollbar-width: none;
+        }
+
+        /* Empêche les pages cachées de déborder */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Toutes les pages au-dessus du body */
+        #loginPage,
+        #menuPage,
+        #recapPage,
+        #paymentPage,
+        #confirmPage,
+        #infoPage,
+        #mirrorPage,
+        #settingsPage {
+            position: relative;
+            z-index: 2;
+        }
+
+        .container {
+            background: rgba(15, 15, 30, 0.55);
+            padding: 40px;
+            border-radius: 25px;
+            width: 420px;
+            text-align: center;
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #error,
+        #success {
+            display: none;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        #error {
+            color: #ff453a;
+        }
+
+        #success {
+            color: #30d158;
+        }
+
+
+        h1,
+        h2 {
+            margin: 0 0 15px 0;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(209, 209, 214, 0.4);
+            background: rgba(0, 0, 0, 0.35);
+            color: #f5f5f7;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #0a84ff;
+            box-shadow: 0 0 0 1px rgba(10, 132, 255, 0.6);
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 11px;
+            background: #0a84ff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #0060df;
+        }
+
+        .back {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #0a84ff;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .back:hover {
+            opacity: 1;
+        }
+
+        /* Options */
+        .option {
+            padding: 20px;
+            border-radius: 18px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: 0.25s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .option:hover {
+            transform: scale(1.03);
+        }
+
+        /* PAGE MIROIR */
+        #mirrorPage {
+            width: 100vw;
+            height: 100vh;
+
+            background:
+                linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.65)),
+                url("https://us.123rf.com/450wm/juliafatieva/juliafatieva2005/juliafatieva200500191/147342037-metal-silver-abstract-background-vector-illustration-mirror-texture-luxury-style-elegant.jpg") center/cover no-repeat;
+
+            backdrop-filter: blur(4px);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+        }
+
+        .mirror-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 90px);
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .icon-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.08);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .icon-btn img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 6px;
+        }
+
+        .icon-label {
+            font-size: 12px;
+            font-weight: 500;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Couleurs des abonnements */
+        .option.free {
+            background: rgba(0, 150, 255, 0.25);
+            border: 1px solid rgba(0, 150, 255, 0.5);
+        }
+
+        .option.premium {
+            background: rgba(255, 200, 0, 0.25);
+            border: 1px solid rgba(255, 200, 0, 0.45);
+        }
+
+        .option.all {
+            background: rgba(255, 50, 50, 0.25);
+            border: 1px solid rgba(255, 50, 50, 0.5);
+        }
+
+        /* PAGE MIROIR */
+        .mirror {
+            width: 100%;
+            height: 100vh;
+            background: rgba(20, 20, 20, 0.85);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.8s ease;
+        }
+
+        /* Mode clair automatique */
+        .mirror.light {
+            background: rgba(240, 240, 240, 0.85);
+            color: black;
+        }
+
+        .mirror-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .mirror-time {
+            animation: softGlow 3s infinite alternate;
+        }
+
+        .mirror-weather {
+            animation: softGlow 3s infinite alternate;
+        }
+
+        .mirror-widgets {
+            margin-top: 40px;
+            font-size: 1.4rem;
+            line-height: 2.2rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(1.02);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes softGlow {
+            from {
+                opacity: 0.7;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* TOP BAR */
+        .mirror-topbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            font-size: 1.6rem;
+            align-items: center;
+        }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .mirror-info {
+            display: flex;
+            gap: 20px;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .mirror-panel {
+            width: 90%;
+            margin: 0 auto;
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.5s ease;
+            font-size: 1.3rem;
+            line-height: 2rem;
+        }
+
+        .mirror-panel.hidden {
+            display: none;
+        }
+
+
+        /* BOUTONS EN BAS */
+        .mirror-actions {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding-bottom: 40px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: 18px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: 0.25s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.08);
+        }
+
+        .settings-btn-large {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: 0.25s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .settings-btn-large:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- LOGIN -->
+    <div id="loginPage" class="container">
+        <h1 style="margin-bottom: 60px; opacity: 1;">Bienvenue dans l'application NarciGlass</h1>
+        <h2>Connexion</h2>
+        <p>Identifiez-vous pour activer le miroir</p>
+
+        <input id="user" type="text" placeholder="Identifiant (prenom.nom)">
+        <input id="pass" type="password" placeholder="Mot de passe">
+
+        <button class="btn" onclick="login()">Se connecter</button>
+        <p class="back" onclick="openRegister()">Créer un compte</p>
+
+        <div id="error" class="error">Identifiant ou mot de passe incorrect</div>
+        <div id="success" class="success">Connexion réussie</div>
+        <p style="margin-top: 70px; font-style: italic; opacity: 0.8;"> NarciGlass, la Santé a son Style </p>
+    </div>
+
+    <div id="registerPage" class="container hidden">
+        <h1>Créer un compte</h1>
+
+        <input id="regUser" type="text" placeholder="Identifiant (prenom.nom)">
+        <input id="regPass" type="password" placeholder="Mot de passe">
+        <input id="regPass2" type="password" placeholder="Confirmer le mot de passe">
+
+        <button class="btn" onclick="register()">Créer le compte</button>
+
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+
+    <!-- MENU -->
+    <div id="menuPage" class="container hidden">
+        <h1>Abonnements</h1>
+        <p>Vous pouvez choisir <b>un seul abonnement gratuit</b>.</p>
+
+        <!-- GRATUITS -->
+        <div class="option free" onclick="selectFree('Miroir Santé')">
+            <h2>Miroir Santé</h2>
+            <p><b>Gratuit</b></p>
+            <p>Suivi santé, bien-être, rythme cardiaque</p>
+        </div>
+
+        <div class="option free" onclick="selectFree('Miroir Mode')">
+            <h2>Miroir Mode</h2>
+            <p><b>Gratuit</b></p>
+            <p>Essayage virtuel, tendances, recommandations</p>
+        </div>
+
+        <!-- PAYANTS -->
+        <div class="option premium" onclick="selectPremium('Miroir Santé+', '29,99€/mois')">
+            <h2>Miroir Santé+</h2>
+            <p><b>29,99€/mois</b></p>
+            <p>Analyse avancée, IA santé, rapports détaillés</p>
+        </div>
+
+        <div class="option premium" onclick="selectPremium('Miroir Mode+', '29,99€/mois')">
+            <h2>Miroir Mode+</h2>
+            <p><b>29,99€/mois</b></p>
+            <p>Essayage 3D, IA stylistique, dressing intelligent</p>
+        </div>
+
+        <!-- TOUT INCLUS -->
+        <div class="option all" onclick="selectPremium('Miroir Tout Inclus', '49,99€/mois')">
+            <h2>Miroir Tout Inclus</h2>
+            <p><b>49,99€/mois</b></p>
+            <p>Tous les services réunis</p>
+        </div>
+
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+    <!-- RÉCAP -->
+    <div id="recapPage" class="container hidden">
+        <h1>Votre abonnement</h1>
+        <div id="chosen"></div>
+
+        <h2 style="margin-top:30px;">Autres abonnements</h2>
+        <div id="others"></div>
+
+        <button class="btn" onclick="goToPayment()">Continuer</button>
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+    <!-- PAGE PAIEMENT -->
+    <div id="paymentPage" class="container hidden">
+        <h1>Paiement</h1>
+        <p>Vous avez choisi : <b id="payName"></b></p>
+        <p>Montant : <b id="payPrice"></b></p>
+
+        <!-- Carte bancaire 3D -->
+        <div id="cardPreview" style="
+        width:100%;
+        height:180px;
+        border-radius:20px;
+        background:linear-gradient(135deg,#1e1e2f,#3a3a55);
+        margin:20px 0;
+        padding:20px;
+        color:white;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
+        box-shadow:0 10px 30px rgba(0,0,0,0.4);
+        transform:perspective(800px) rotateY(0deg);
+        transition:0.4s;
+    ">
+            <div id="cardLogo" style="text-align:right;font-size:22px;opacity:0.8;"></div>
+            <div id="cardNumberPreview" style="font-size:22px;letter-spacing:2px;">•••• •••• •••• ••••</div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;">
+                <div id="cardExpPreview">MM/AA</div>
+                <div id="cardCvcPreview">CVC</div>
+            </div>
+        </div>
+
+        <h2>Informations bancaires</h2>
+
+        <input id="cardNumber" type="text" placeholder="Numéro de carte" maxlength="19">
+
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <select id="expMonth">
+                <option value="">Mois</option>
+                <option>01</option>
+                <option>02</option>
+                <option>03</option>
+                <option>04</option>
+                <option>05</option>
+                <option>06</option>
+                <option>07</option>
+                <option>08</option>
+                <option>09</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+            </select>
+
+            <select id="expYear">
+                <option value="">Année</option>
+            </select>
+        </div>
+
+        <input id="cvc" type="text" placeholder="CVC" maxlength="3">
+
+        <button class="btn" onclick="confirmPayment()">Payer</button>
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+    <!-- PAGE CONFIRMATION -->
+    <div id="confirmPage" class="container hidden">
+        <h1>Paiement validé</h1>
+        <p style="font-size:18px;margin-top:10px;">Votre abonnement est activé 🎉</p>
+
+        <div style="
+        margin:20px auto;
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        background:#30d158;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        font-size:60px;
+        color:white;
+        box-shadow:0 10px 30px rgba(0,255,100,0.4);
+    ">✓</div>
+
+        <button class="btn" onclick="goToInfo()">Continuer</button>
+    </div>
+
+    <!-- PAGE INFO -->
+    <div id="infoPage" class="container hidden">
+        <h1 id="infoTitle">Fonctionnement du Miroir</h1>
+        <div id="infoContent"></div>
+
+        <button class="btn" onclick="openMirror()">Accéder au miroir</button>
+    </div>
+
+
+    <!-- PAGE PARAMÈTRES -->
+
+
+    <div id="settingsPage" class="container hidden">
+        <h1>Paramètres</h1>
+
+
+        <h2>Options</h2>
+
+        <button class="settings-btn-large" onclick="openAccountPage()">Mon compte</button>
+        <button class="settings-btn-large" onclick="openSubscriptionManager()">Changer d’abonnement</button>
+        <button class="settings-btn-large" onclick="logout()">Déconnexion</button>
+        <button class="settings-btn-large" onclick="returnToMirror()">Retour au miroir</button>
+
+
+    </div>
+
+    <div id="accountPage" class="container hidden">
+        <h1>Mon compte</h1>
+
+        <p><b>Identifiant :</b> <span id="accUsername"></span></p>
+        <p><b>Date de création :</b> <span id="accCreated"></span></p>
+
+        <h2>Abonnements actifs</h2>
+        <div id="accSubs" style="text-align:center;"></div>
+
+        <button class="settings-btn-large" onclick="openPasswordPage()">Changer le mot de passe</button>
+
+        <button class="settings-btn-large" style="background:#ff3b30;" onclick="openDeletePage()">Supprimer le
+            compte</button>
+
+
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+    <div id="passwordPage" class="container hidden">
+        <h1>Changer le mot de passe</h1>
+
+        <input id="newPass1" type="password" placeholder="Nouveau mot de passe">
+        <input id="newPass2" type="password" placeholder="Confirmer le mot de passe">
+
+        <button class="settings-btn-large" onclick="applyPasswordChange()">Valider</button>
+
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+    <div id="deletePage" class="container hidden">
+        <h1>Supprimer mon compte</h1>
+
+        <p style="opacity:0.8; margin-bottom:20px;">
+            Cette action est définitive. Votre compte et vos abonnements seront supprimés.
+        </p>
+
+        <button class="settings-btn-large" style="background:#ff3b30;" onclick="confirmDeleteAccount()">Supprimer
+            définitivement</button>
+
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+    <div id="subscriptionPage" class="container hidden">
+        <h1>Changer d’abonnement</h1>
+
+        <p>Choisissez un nouvel abonnement :</p>
+
+        <div id="subscriptionOptions"></div>
+
+        <div class="back" onclick="goBack()">Retour</div>
+    </div>
+
+
+
+
+    <!-- PAGE MIROIR -->
+    <div id="mirrorPage" class="mirror hidden">
+
+        <!-- TOP BAR -->
+        <div class="mirror-topbar">
+            <div class="settings-btn" onclick="openSettings()">
+                ⚙️
+            </div>
+            <div class="settings-btn" onclick="openProfileSwitcher()">
+                🌀
+            </div>
+
+
+            <div class="mirror-info">
+                <span id="mirrorTime"></span>
+                <span id="mirrorWeather"></span>
+            </div>
+        </div>
+
+        <!-- WIDGETS CENTRAUX -->
+        <div id="mirrorWidgets" class="mirror-widgets"></div>
+        <div id="mirrorPanel" class="mirror-panel hidden"></div>
+        <div id="profilePanel" class="mirror-panel hidden"></div>
+
+
+        <!-- BOUTONS INTERACTIFS EN BAS -->
+        <div id="mirrorActions" class="mirror-actions"></div>
+
+    </div>
+
+
+
+
+    <script>
+
+        /* ------------------------------
+           VARIABLES GLOBALES
+        ------------------------------ */
+
+        let freeChosen = false;
+        let chosenName = "";
+        let chosenPrice = "";
+        let paymentValidated = false;
+        let activeSubscriptions = [];
+        let openedPanel = null;
+        let currentWeather = null;
+        let currentTemp = null;
+        let currentCity = null;
+        let currentHour = null;
+
+
+        const WEATHER_API_KEY = "f8eb2edcebf64dc6638782532d99ac30"; // ← remplace par ta vraie clé
+
+        // --- SYSTEME DE COMPTES ---
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem("users") || "[]");
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem("users", JSON.stringify(users));
+        }
+
+        function setCurrentUser(username) {
+            localStorage.setItem("currentUser", username);
+        }
+
+        function getCurrentUser() {
+            return localStorage.getItem("currentUser");
+        }
+
+        function logoutUser() {
+            localStorage.removeItem("currentUser");
+        }
+
+
+
+        /* ------------------------------
+           NAVIGATION GLOBALE
+        ------------------------------ */
+
+        let pageHistory = [];
+        let currentPage = "loginPage";
+
+        function navigateTo(pageId) {
+            if (currentPage !== pageId) {
+                pageHistory.push(currentPage);
+            }
+
+            document.querySelectorAll(".container, .mirror").forEach(p => p.classList.add("hidden"));
+            document.getElementById(pageId).classList.remove("hidden");
+
+            currentPage = pageId;
+        }
+
+
+        function goBack() {
+            if (pageHistory.length === 0) return;
+
+            const previousPage = pageHistory.pop();
+
+            document.getElementById(currentPage).classList.add("hidden");
+            document.getElementById(previousPage).classList.remove("hidden");
+
+            currentPage = previousPage;
+        }
+
+        function openMirror() {
+            navigateTo("mirrorPage");
+            loadMirrorPage();
+        }
+
+
+        /* ------------------------------
+           LOGIN
+        ------------------------------ */
+
+        function focusInput(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            setTimeout(() => {
+                el.focus();
+            }, 300); // délai nécessaire sur iOS/Android
+        }
+
+        function openLogin() {
+            navigateTo("loginPage");
+            focusInput("user");
+        }
+
+        function login() {
+            const user = document.getElementById("user").value.trim();
+            const pass = document.getElementById("pass").value;
+
+            const users = getUsers();
+            const found = users.find(u => u.username === user && u.password === pass);
+
+            if (!found) {
+                document.getElementById("success").style.display = "none";
+                document.getElementById("error").style.display = "block";
+                focusInput("pass");
+                return;
+            }
+
+            setCurrentUser(user);
+
+            document.getElementById("error").style.display = "none";
+            document.getElementById("success").style.display = "block";
+
+            setTimeout(() => {
+                // S'il a déjà un abonnement → miroir direct
+                if (found.subscriptions && found.subscriptions.length > 0) {
+                    activeSubscriptions = found.subscriptions;
+                    chosenName = found.lastProfile || found.subscriptions[0];
+                    navigateTo("mirrorPage");
+                    loadMirrorPage();
+                } else {
+                    // Sinon → choix d’abonnement
+                    navigateTo("menuPage");
+                }
+            }, 800);
+        }
+
+
+
+        function openRegister() {
+            navigateTo("registerPage");
+            focusInput("regUser");
+        }
+
+        function register() {
+            const user = document.getElementById("regUser").value.trim();
+            const pass = document.getElementById("regPass").value;
+            const pass2 = document.getElementById("regPass2").value;
+
+            if (!user || !pass || !pass2) {
+                alert("Veuillez remplir tous les champs.");
+                return;
+            }
+
+            if (pass !== pass2) {
+                alert("Les mots de passe ne correspondent pas.");
+                return;
+            }
+
+            let users = getUsers();
+
+            if (users.find(u => u.username === user)) {
+                alert("Ce compte existe déjà.");
+                return;
+            }
+
+            users.push({
+                username: user,
+                password: pass,
+                subscriptions: [],
+                lastProfile: null,
+                created: new Date().toLocaleString()
+            });
+
+
+            saveUsers(users);
+
+            alert("Compte créé avec succès !");
+            navigateTo("loginPage");
+        }
+
+
+
+        /* ------------------------------
+           ABONNEMENTS
+        ------------------------------ */
+
+        function selectFree(name) {
+            chosenName = name;
+            let users = getUsers();
+            let u = users.find(x => x.username === getCurrentUser());
+            u.subscriptions = [name];
+            u.lastProfile = name;
+            saveUsers(users);
+            chosenPrice = "Gratuit";
+
+
+            if (!activeSubscriptions.includes(name)) {
+                activeSubscriptions.push(name);
+            }
+
+            loadInfoPage();
+            navigateTo("infoPage");
+        }
+
+
+
+        function selectPremium(name, price) {
+            chosenName = name;
+            let users = getUsers();
+            let u = users.find(x => x.username === getCurrentUser());
+            u.subscriptions = [name];
+            u.lastProfile = name;
+            saveUsers(users);
+
+            chosenPrice = price;
+
+            // L’utilisateur doit payer avant d’accéder au miroir
+            paymentValidated = false;
+
+            goToPayment();
+        }
+
+        // Cette fonction n'est plus utilisée mais on la garde au cas où
+        function showRecap() {
+            navigateTo("infoPage");
+        }
+
+
+
+        function showRecap() {
+            navigateTo("recapPage");
+
+            document.getElementById("chosen").innerHTML = `
+        <div class="option" style="background:rgba(0,150,255,0.25);border:1px solid rgba(0,150,255,0.5);">
+            <h2>${chosenName}</h2>
+            <p><b>${chosenPrice}</b></p>
+        </div>
+    `;
+
+            const all = [
+                { n: "Miroir Santé", p: "Gratuit" },
+                { n: "Miroir Mode", p: "Gratuit" },
+                { n: "Miroir Santé+", p: "29,99€/mois" },
+                { n: "Miroir Mode+", p: "29,99€/mois" },
+                { n: "Miroir Tout Inclus", p: "49,99€/mois" }
+            ];
+
+            document.getElementById("others").innerHTML =
+                all.filter(a => a.n !== chosenName)
+                    .map(a => `
+                <div class="option">
+                    <h3>${a.n}</h3>
+                    <p>${a.p}</p>
+                </div>
+           `).join("");
+        }
+
+        function goToPayment() {
+            document.getElementById("payName").innerText = chosenName;
+            document.getElementById("payPrice").innerText = chosenPrice;
+
+            navigateTo("paymentPage");
+            focusInput("cardNumber");
+        }
+
+
+        /* ------------------------------
+           PAIEMENT — ANNÉES AUTO
+        ------------------------------ */
+
+        const yearSelect = document.getElementById("expYear");
+        const currentYear = new Date().getFullYear();
+
+        for (let i = 0; i < 12; i++) {
+            const y = currentYear + i;
+            const opt = document.createElement("option");
+            opt.value = y;
+            opt.textContent = y;
+            yearSelect.appendChild(opt);
+        }
+
+        /* ------------------------------
+           PAIEMENT — FORMAT + LOGO + 3D
+        ------------------------------ */
+
+        function detectCardType(number) {
+            if (/^4/.test(number)) return "visa";
+            if (/^5[1-5]/.test(number)) return "mastercard";
+            return "";
+        }
+
+        function updateCardLogo(type) {
+            const logo = document.getElementById("cardLogo");
+
+            if (type === "visa") logo.innerHTML = "VISA";
+            else if (type === "mastercard") logo.innerHTML = "Mastercard";
+            else logo.innerHTML = "";
+        }
+
+        document.getElementById("cardNumber").addEventListener("input", function () {
+            let value = this.value.replace(/\D/g, "").substring(0, 16);
+
+            this.value = value.replace(/(.{4})/g, "$1 ").trim();
+
+            const type = detectCardType(value);
+            updateCardLogo(type);
+
+            document.getElementById("cardNumberPreview").textContent =
+                this.value || "•••• •••• •••• ••••";
+        });
+
+        /* EXPIRATION */
+        document.getElementById("expMonth").addEventListener("change", function () {
+            document.getElementById("cardExpPreview").textContent =
+                this.value + "/" + (document.getElementById("expYear").value.substring(2) || "AA");
+        });
+
+        document.getElementById("expYear").addEventListener("change", function () {
+            document.getElementById("cardExpPreview").textContent =
+                (document.getElementById("expMonth").value || "MM") + "/" + this.value.substring(2);
+        });
+
+        /* CVC */
+        document.getElementById("cvc").addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").substring(0, 3);
+            document.getElementById("cardCvcPreview").textContent = this.value || "CVC";
+        });
+
+        /* 3D EFFECT */
+        const card = document.getElementById("cardPreview");
+
+        card.addEventListener("mousemove", e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+
+            card.style.transform = `perspective(800px) rotateY(${x / 20}deg) rotateX(${-y / 20}deg)`;
+        });
+
+        card.addEventListener("mouseleave", () => {
+            card.style.transform = "perspective(800px) rotateY(0deg) rotateX(0deg)";
+        });
+
+
+        /* ------------------------------
+           CONFIRMATION
+        ------------------------------ */
+
+        function luhnCheck(num) {
+            let arr = num.split("").reverse().map(x => parseInt(x));
+            let sum = 0;
+
+            for (let i = 0; i < arr.length; i++) {
+                let val = arr[i];
+                if (i % 2 === 1) val *= 2;
+                if (val > 9) val -= 9;
+                sum += val;
+            }
+            return sum % 10 === 0;
+        }
+
+        function confirmPayment() {
+            const number = document.getElementById("cardNumber").value.replace(/\s/g, "");
+            const month = document.getElementById("expMonth").value;
+            const year = document.getElementById("expYear").value;
+            const cvc = document.getElementById("cvc").value;
+
+            // Vérifier que tous les champs sont remplis
+            if (!number || !month || !year || !cvc) {
+                alert("Veuillez remplir toutes les informations bancaires.");
+                return;
+            }
+
+            // Vérifier que les champs ont la bonne longueur (prototype)
+            if (number.length < 16) {
+                alert("Le numéro de carte doit contenir 16 chiffres.");
+                return;
+            }
+
+            if (cvc.length < 3) {
+                alert("Le CVC doit contenir 3 chiffres.");
+                return;
+            }
+
+            // Paiement validé (prototype)
+            paymentValidated = true;
+
+
+            // Ajout de l’abonnement payant après paiement
+            if (!activeSubscriptions.includes(chosenName)) {
+
+                // Si on passe de Santé → Santé+
+                if (chosenName === "Miroir Santé+" && activeSubscriptions.includes("Miroir Santé")) {
+                    activeSubscriptions = activeSubscriptions.filter(a => a !== "Miroir Santé");
+                }
+
+                // Si on passe de Mode → Mode+
+                if (chosenName === "Miroir Mode+" && activeSubscriptions.includes("Miroir Mode")) {
+                    activeSubscriptions = activeSubscriptions.filter(a => a !== "Miroir Mode");
+                }
+
+                activeSubscriptions.push(chosenName);
+
+                navigateTo("confirmPage");
+                // Après paiement, on prépare la page Fonctionnement du miroir
+                loadInfoPage();
+
+            }
+
+
+            if (!activeSubscriptions.includes(chosenName)) {
+                // Si on passe de Santé -> Santé+ ou Mode -> Mode+
+                if (chosenName === "Miroir Santé+" && activeSubscriptions.includes("Miroir Santé")) {
+                    activeSubscriptions = activeSubscriptions.filter(a => a !== "Miroir Santé");
+                }
+                if (chosenName === "Miroir Mode+" && activeSubscriptions.includes("Miroir Mode")) {
+                    activeSubscriptions = activeSubscriptions.filter(a => a !== "Miroir Mode");
+                }
+
+                activeSubscriptions.push(chosenName);
+            }
+
+        }
+
+        function loadInfoPage() {
+            document.getElementById("infoTitle").innerText = "Fonctionnement du " + chosenName;
+
+            let content = "";
+
+            if (chosenName === "Miroir Santé") {
+                content = `
+                    <h2>Fonctionnalités incluses</h2>
+                    <ul style="text-align:left;">
+                        <li>Suivi du rythme cardiaque</li>
+                        <li>Analyse basique du sommeil</li>
+                        <li>Conseils bien-être quotidiens</li>
+                        <li>Affichage météo et notifications</li>
+                    </ul>
+
+                    <h2>Limitations</h2>
+                    <ul style="text-align:left;">
+                        <li>Pas d’analyse avancée</li>
+                        <li>Pas de rapports détaillés</li>
+                        <li>Pas d’IA santé</li>
+                    </ul>
+                `;
+            }
+
+            else if (chosenName === "Miroir Mode") {
+                content = `
+                    <h2>Fonctionnalités incluses</h2>
+                    <ul style="text-align:left;">
+                        <li>Essayage virtuel simple</li>
+                        <li>Suggestions de tenues basiques</li>
+                        <li>Affichage météo et notifications</li>
+                    </ul>
+
+                    <h2>Limitations</h2>
+                    <ul style="text-align:left;">
+                        <li>Pas d’essayage 3D</li>
+                        <li>Pas d’IA stylistique</li>
+                        <li>Pas de dressing intelligent</li>
+                    </ul>
+                `;
+            }
+
+            else if (chosenName === "Miroir Santé+") {
+                content = `
+                    <h2>Fonctionnalités incluses</h2>
+                    <ul style="text-align:left;">
+                        <li>Analyse avancée du rythme cardiaque</li>
+                        <li>Analyse du sommeil avec IA</li>
+                        <li>Rapports santé détaillés</li>
+                        <li>Conseils personnalisés</li>
+                        <li>Affichage météo et notifications</li>
+                    </ul>
+                `;
+            }
+
+            else if (chosenName === "Miroir Mode+") {
+                content = `
+                    <h2>Fonctionnalités incluses</h2>
+                    <ul style="text-align:left;">
+                        <li>Essayage virtuel 3D</li>
+                        <li>IA stylistique avancée</li>
+                        <li>Recommandations personnalisées</li>
+                        <li>Dressing intelligent</li>
+                        <li>Affichage météo et notifications</li>
+                    </ul>
+                `;
+            }
+
+            else if (chosenName === "Miroir Tout Inclus") {
+                content = `
+                    <h2>Fonctionnalités incluses</h2>
+                    <ul style="text-align:left;">
+                        <li>Analyse santé avancée + IA</li>
+                        <li>Rapports détaillés</li>
+                        <li>Essayage virtuel 3D</li>
+                        <li>IA stylistique premium</li>
+                        <li>Dressing intelligent complet</li>
+                        <li>Conseils personnalisés santé + mode</li>
+                        <li>Affichage météo et notifications</li>
+                    </ul>
+
+                    <h2>Avantages exclusifs</h2>
+                    <ul style="text-align:left;">
+                        <li>Accès prioritaire aux nouvelles fonctionnalités</li>
+                        <li>Support premium 24/7</li>
+                        <li>Mises à jour anticipées</li>
+                    </ul>
+                `;
+            }
+
+            document.getElementById("infoContent").innerHTML = content;
+        }
+
+
+        function goToInfo() {
+            if (!paymentValidated && chosenPrice !== "Gratuit") {
+                alert("Vous devez d'abord effectuer le paiement pour accéder à cet abonnement.");
+                return;
+            }
+
+            loadInfoPage();
+            navigateTo("infoPage");
+        }
+
+
+
+        /* ------------------------------
+           MIROIR
+        ------------------------------ */
+
+        function loadMirrorButtons() {
+            grid.innerHTML = "";
+
+            const common = [
+                { icon: "https://img.icons8.com/fluency/96/camera.png", label: "Photo" },
+                { icon: "https://img.icons8.com/fluency/96/cloud.png", label: "Météo" },
+                { icon: "https://img.icons8.com/fluency/96/settings.png", label: "Paramètres", action: "openSettings()" }
+            ];
+
+            common.forEach(b => {
+                grid.innerHTML += `
+            <div class="icon-btn" onclick="${b.action || ''}">
+                <img src="${b.icon}">
+                <div class="icon-label">${b.label}</div>
+            </div>
+        `;
+            });
+        }
+
+        function loadMirrorActions() {
+            let actions = [];
+
+            if (chosenName === "Miroir Santé") {
+                actions = [
+                    "Rythme cardiaque",
+                    "Sommeil",
+                    "Conseils",
+                    "Hydratation",
+                    "Respiration",
+                    "Étirements",
+                    "Stress du jour",
+                    "Pas quotidiens"
+                ];
+            }
+
+            if (chosenName === "Miroir Mode") {
+                actions = [
+                    "Tenues",
+                    "Couleurs",
+                    "Tendances",
+                    "Accessoires",
+                    "Coiffure",
+                    "Look minimaliste",
+                    "Palette alternative",
+                    "Look météo"
+                ];
+            }
+
+            if (chosenName === "Miroir Santé+") {
+                actions = [
+                    "Analyse IA",
+                    "Sommeil avancé",
+                    "Rapports",
+                    "HRV",
+                    "Énergie du jour",
+                    "Respiration IA",
+                    "Hydratation IA",
+                    "Programme bien-être"
+                ];
+            }
+
+            if (chosenName === "Miroir Mode+") {
+                actions = [
+                    "Essayage 3D",
+                    "IA Style",
+                    "Dressing",
+                    "Morphologie IA",
+                    "Look premium",
+                    "Optimisation dressing",
+                    "Couleurs peau",
+                    "Mode météo+"
+                ];
+            }
+
+            if (chosenName === "Miroir Tout Inclus") {
+                actions = [
+                    "Santé",
+                    "Mode",
+                    "IA Complète",
+                    "Essayage 3D",
+                    "Routine complète",
+                    "Prévision 24h",
+                    "Look & Mood",
+                    "Analyse totale"
+                ];
+            }
+
+            document.getElementById("mirrorActions").innerHTML =
+                actions.map(a => `<div class="action-btn" onclick="openPanel('${a}')">${a}</div>`).join("");
+        }
+
+
+        function openPanel(name) {
+            const panel = document.getElementById("mirrorPanel");
+
+            // Si on reclique sur le même bouton → on ferme
+            if (openedPanel === name) {
+                panel.classList.add("hidden");
+                openedPanel = null;
+                return;
+            }
+
+            // Sinon → on ouvre le panneau avec le nouveau contenu
+            openedPanel = name;
+            panel.classList.remove("hidden");
+            panel.innerHTML = narcisseAI(name);
+        }
+
+
+
+
+        /* ------------------------------
+           PARAMÈTRES
+        ------------------------------ */
+
+        function openSettings() {
+            navigateTo("settingsPage");
+        }
+
+
+        function openAccountPage() {
+            const user = getCurrentUser();
+            const users = getUsers();
+            const u = users.find(x => x.username === user);
+
+            document.getElementById("accUsername").innerText = u.username;
+            document.getElementById("accCreated").innerText = u.created || "Non disponible";
+
+            document.getElementById("accSubs").innerHTML =
+                u.subscriptions.length === 0
+                    ? "<li>Aucun abonnement</li>"
+                    : u.subscriptions.map(s => `<div>${s}</div>`).join("");
+
+            navigateTo("accountPage");
+
+        }
+
+        function openPasswordPage() {
+            navigateTo("passwordPage");
+            focusInput("newPass1");
+        }
+
+        function openDeletePage() {
+            navigateTo("deletePage");
+        }
+
+        function applyPasswordChange() {
+            const p1 = document.getElementById("newPass1").value.trim();
+            const p2 = document.getElementById("newPass2").value.trim();
+
+            if (!p1 || !p2) {
+                alert("Veuillez remplir les deux champs.");
+                return;
+            }
+
+            if (p1 !== p2) {
+                alert("Les mots de passe ne correspondent pas.");
+                return;
+            }
+
+            const user = getCurrentUser();
+            const users = getUsers();
+            const u = users.find(x => x.username === user);
+
+            u.password = p1;
+            saveUsers(users);
+
+            alert("Mot de passe mis à jour !");
+            navigateTo("accountPage");
+        }
+
+        function confirmDeleteAccount() {
+            const user = getCurrentUser();
+            let users = getUsers();
+
+            users = users.filter(x => x.username !== user);
+            saveUsers(users);
+
+            logoutUser();
+
+            alert("Compte supprimé.");
+            navigateTo("loginPage");
+        }
+
+        function openSubscriptionManager() {
+            loadSubscriptionOptions();
+            navigateTo("subscriptionPage");
+        }
+
+        function loadSubscriptionOptions() {
+            const all = [
+                { n: "Miroir Santé", p: "Gratuit" },
+                { n: "Miroir Mode", p: "Gratuit" },
+                { n: "Miroir Santé+", p: "29,99€/mois" },
+                { n: "Miroir Mode+", p: "29,99€/mois" },
+                { n: "Miroir Tout Inclus", p: "49,99€/mois" }
+            ];
+
+            const user = getCurrentUser();
+            const users = getUsers();
+            const u = users.find(x => x.username === user);
+
+            document.getElementById("subscriptionOptions").innerHTML =
+                all.map(a => `
+                    <div class="option ${a.p === 'Gratuit' ? 'free' : (a.n === 'Miroir Tout Inclus' ? 'all' : 'premium')}"
+                        onclick="changeSubscription('${a.n}', '${a.p}')">
+                        <h3>${a.n}</h3>
+                        <p>${a.p}</p>
+                    </div>
+                `).join("");
+        }
+
+
+        function changePassword() {
+            const newPass = document.getElementById("newPass").value.trim();
+            if (!newPass) {
+                alert("Veuillez entrer un nouveau mot de passe.");
+                return;
+            }
+
+            const user = getCurrentUser();
+            const users = getUsers();
+            const u = users.find(x => x.username === user);
+
+            u.password = newPass;
+            saveUsers(users);
+
+            alert("Mot de passe mis à jour !");
+        }
+
+        function deleteAccount() {
+            if (!confirm("Voulez-vous vraiment supprimer votre compte ?")) return;
+
+            const user = getCurrentUser();
+            let users = getUsers();
+
+            users = users.filter(x => x.username !== user);
+            saveUsers(users);
+
+            logoutUser();
+
+            alert("Compte supprimé.");
+            navigateTo("loginPage");
+        }
+
+        function changeSubscription(name, price) {
+            const user = getCurrentUser();
+            const users = getUsers();
+            const u = users.find(x => x.username === user);
+
+            const isFree = price === "Gratuit";
+
+            u.subscriptions = [name];
+            u.lastProfile = name;
+            saveUsers(users);
+
+            chosenName = name;
+            chosenPrice = price;
+
+            if (!isFree) {
+                paymentValidated = false;
+                navigateTo("paymentPage");
+                return;
+            }
+
+            alert("Abonnement mis à jour !");
+            navigateTo("mirrorPage");
+            loadMirrorPage();
+        }
+
+        function returnToMirror() {
+            navigateTo("mirrorPage");
+        }
+
+        function logout() {
+            logoutUser();
+            freeChosen = false;
+            chosenName = "";
+            chosenPrice = "";
+            pageHistory = [];
+            navigateTo("loginPage");
+        }
+
+        // --- HEURE EN TEMPS RÉEL ---
+        setInterval(() => {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, "0");
+            const m = now.getMinutes().toString().padStart(2, "0");
+            document.getElementById("mirrorTime").innerText = `${h}:${m}`;
+        }, 1000);
+
+        setInterval(() => {
+            getLocationAndWeather();
+        }, 600000); // toutes les 10 minutes
+
+
+        // --- MODE SOMBRE / CLAIR AUTOMATIQUE ---
+        function updateMirrorTheme() {
+            // On garde juste le mode clair/sombre si tu veux
+            const hour = new Date().getHours();
+            const mirror = document.getElementById("mirrorPage");
+
+            if (hour >= 7 && hour < 19) {
+                mirror.classList.add("light");
+            } else {
+                mirror.classList.remove("light");
+            }
+        }
+
+
+
+        // --- MÉTÉO ---
+        function getLocationAndWeather() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        loadWeather(lat, lon);
+                    },
+                    () => {
+                        // Si l'utilisateur refuse → fallback Nice
+                        loadWeather(43.7102, 7.2620);
+                    }
+                );
+            } else {
+                loadWeather(43.7102, 7.2620); // fallback Nice
+            }
+        }
+
+
+        function updateWeatherDisplay() {
+            const el = document.getElementById("mirrorWeather");
+
+            if (!currentWeather || !currentTemp || !currentCity) {
+                el.innerText = "Narcisse charge les données météo...";
+                return;
+            }
+
+            el.innerText = `${currentCity} • ${currentTemp}°C • ${currentWeather}`;
+        }
+
+
+        function loadWeather(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${WEATHER_API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+
+                    currentTemp = Math.round(data.main.temp);
+                    currentCity = data.name;
+                    currentWeather = data.weather[0].main.toLowerCase(); // "rain", "clear", "clouds"
+
+                    const icon = data.weather[0].icon;
+
+                    document.getElementById("mirrorWeather").innerHTML =
+                        `<img src="https://openweathermap.org/img/wn/${icon}.png" style="width:28px;vertical-align:middle;">
+                ${currentTemp}°C • ${currentCity}`;
+
+                    loadMirrorWidgets(); // widgets mis à jour automatiquement
+                })
+                .catch(() => {
+                    document.getElementById("mirrorWeather").innerText = "Météo indisponible";
+                });
+        }
+
+
+
+
+        function openProfileSwitcher() {
+            const panel = document.getElementById("profilePanel");
+
+            // Si le panneau profil est déjà ouvert → on le ferme
+            if (openedPanel === "profile") {
+                panel.classList.add("hidden");
+                openedPanel = null;
+                return;
+            }
+
+            // Sinon → on l’ouvre
+            openedPanel = "profile";
+            panel.classList.remove("hidden");
+
+            panel.innerHTML = `
+                <h2>Choisir un profil</h2>
+                ${activeSubscriptions.map(sub => `
+                    <div class="action-btn" onclick="switchProfile('${sub}')">${sub}</div>
+                `).join("")}
+            `;
+        }
+
+
+        function switchProfile(name) {
+            chosenName = name;
+
+            document.getElementById("profilePanel").classList.add("hidden");
+            openedPanel = null;
+
+            loadMirrorActions();
+            loadMirrorWidgets();
+            document.getElementById("mirrorPanel").classList.add("hidden");
+        }
+
+
+
+
+        // --- WIDGETS SELON ABONNEMENT ---
+        function loadMirrorWidgets() {
+            let html = "";
+
+            // Mise à jour de l'heure
+            currentHour = new Date().getHours();
+
+            // --- SANTÉ ---
+            if (chosenName.includes("Santé")) {
+
+                html = `<h2>Votre santé aujourd'hui</h2>`;
+
+                if (currentHour < 12) {
+                    html += `<p>🌅 Matin : pensez à bien vous hydrater.</p>`;
+                } else if (currentHour < 18) {
+                    html += `<p>🌤️ Après-midi : énergie stable.</p>`;
+                } else {
+                    html += `<p>🌙 Soir : ralentissez le rythme.</p>`;
+                }
+
+                if (currentWeather === "rain") {
+                    html += `<p>🌧️ Humidité élevée : respiration recommandée.</p>`;
+                } else if (currentWeather === "clear") {
+                    html += `<p>☀️ Belle météo : idéal pour marcher.</p>`;
+                } else if (currentWeather === "clouds") {
+                    html += `<p>☁️ Temps couvert : niveau d’énergie modéré.</p>`;
+                }
+            }
+
+            // --- MODE ---
+            if (chosenName.includes("Mode")) {
+
+                html = `<h2>Votre style aujourd'hui</h2>`;
+
+                if (currentTemp <= 10) {
+                    html += `<p>🧥 Il fait froid : privilégiez les couches chaudes.</p>`;
+                } else if (currentTemp <= 20) {
+                    html += `<p>🧶 Température douce : tenue légère recommandée.</p>`;
+                } else {
+                    html += `<p>😎 Il fait chaud : optez pour des matières respirantes.</p>`;
+                }
+
+                if (currentWeather === "rain") {
+                    html += `<p>🌧️ Pluie : évitez les matières sensibles à l’eau.</p>`;
+                } else if (currentWeather === "clear") {
+                    html += `<p>☀️ Soleil : couleurs claires recommandées.</p>`;
+                } else if (currentWeather === "clouds") {
+                    html += `<p>☁️ Nuages : palette neutre idéale.</p>`;
+                }
+            }
+
+            document.getElementById("mirrorWidgets").innerHTML = html;
+        }
+
+
+
+        // --- CHARGEMENT DE LA PAGE MIROIR ---
+        function loadMirrorPage() {
+            updateMirrorTheme();
+
+            document.getElementById("mirrorWeather").innerText = "Narcisse charge les données météo...";
+            getLocationAndWeather();
+
+            loadMirrorActions();
+            loadMirrorWidgets();
+
+            document.getElementById("mirrorPanel").classList.add("hidden");
+            document.getElementById("profilePanel").classList.add("hidden");
+        }
+
+
+
+
+
+        // --- NARCISSE IA ---
+
+        function narcisseAI(name) {
+
+            switch (name) {
+
+                /* ------------------ SANTÉ ------------------ */
+
+                case "Rythme cardiaque":
+                    return `
+                        <h2>❤️ Rythme cardiaque</h2>
+                        <p>Analyse en cours...</p>
+                        <p>${currentHour < 12 ? "Votre rythme matinal semble stable." : "Votre rythme est cohérent avec votre activité de la journée."}</p>
+                    `;
+
+                case "Sommeil":
+                    return `
+                        <h2>😴 Analyse du sommeil</h2>
+                        <p>${currentHour < 12 ? "Vous venez de vous réveiller." : "Votre nuit précédente influence votre énergie actuelle."}</p>
+                        <p>Météo : ${currentWeather === "rain" ? "Le temps pluvieux peut augmenter la fatigue." : "Conditions favorables pour une bonne énergie."}</p>
+                    `;
+
+                case "Conseils":
+                    return `
+                        <h2>💡 Conseils du jour</h2>
+                        <p>${currentWeather === "rain" ? "Pluie : restez au chaud et hydratez-vous." : "Temps clair : profitez pour marcher un peu."}</p>
+                        <p>${currentHour < 12 ? "Commencez la journée doucement." : "Pensez à faire une pause."}</p>
+                    `;
+
+                case "Hydratation":
+                    return `
+                        <h2>💧 Hydratation</h2>
+                        <p>${currentTemp >= 20 ? "Il fait chaud, buvez plus que d'habitude." : "Hydratation normale recommandée."}</p>
+                        <p>${currentWeather === "rain" ? "Humidité élevée : hydratation modérée." : "Temps sec : buvez régulièrement."}</p>
+                    `;
+
+                case "Respiration":
+                    return `
+                        <h2>🌬️ Respiration guidée</h2>
+                        <p>${currentHour < 12 ? "Idéal pour bien commencer la journée." : "Parfait pour relâcher la pression."}</p>
+                    `;
+
+                case "Étirements":
+                    return `
+                        <h2>🤸 Étirements</h2>
+                        <p>${currentHour < 12 ? "Étirements matinaux recommandés." : "Étirements du soir pour détendre le corps."}</p>
+                        <p>${currentWeather === "rain" ? "Le temps humide peut raidir les muscles." : ""}</p>
+                    `;
+
+                case "Stress du jour":
+                    return `
+                        <h2>😮‍💨 Stress du jour</h2>
+                        <p>${currentWeather === "rain" ? "La pluie peut augmenter la sensation de lourdeur." : "Conditions favorables pour un bon moral."}</p>
+                    `;
+
+                case "Pas quotidiens":
+                    return `
+                        <h2>🚶 Pas quotidiens</h2>
+                        <p>${currentWeather === "rain" ? "Pluie : privilégiez la marche en intérieur." : "Temps idéal pour marcher dehors."}</p>
+                    `;
+
+
+                /* ------------------ MODE ------------------ */
+
+                case "Tenues":
+                    if (currentWeather === "rain") {
+                        return `
+                            <h2>👗 Tenue du jour</h2>
+                            <p>Pluie à ${currentCity}.</p>
+                            <ul>
+                                <li>Veste imperméable</li>
+                                <li>Pantalon foncé</li>
+                                <li>Chaussures résistantes à l’eau</li>
+                            </ul>
+                        `;
+                    }
+                    if (currentTemp <= 10) {
+                        return `
+                            <h2>👗 Tenue du jour</h2>
+                            <p>Il fait froid (${currentTemp}°C).</p>
+                            <ul>
+                                <li>Manteau chaud</li>
+                                <li>Pull épais</li>
+                                <li>Écharpe</li>
+                            </ul>
+                        `;
+                    }
+                    if (currentTemp >= 20) {
+                        return `
+                            <h2>👗 Tenue du jour</h2>
+                            <p>Il fait chaud (${currentTemp}°C).</p>
+                            <ul>
+                                <li>T-shirt léger</li>
+                                <li>Pantalon fluide</li>
+                                <li>Baskets respirantes</li>
+                            </ul>
+                        `;
+                    }
+                    return `
+                        <h2>👗 Tenue du jour</h2>
+                        <p>Temps neutre. Tenue polyvalente recommandée.</p>
+                    `;
+
+                case "Couleurs":
+                    if (currentWeather === "rain") {
+                        return `
+                            <h2>🎨 Couleurs du jour</h2>
+                            <p>Pluie à ${currentCity}. Narcisse recommande :</p>
+                            <ul>
+                                <li>Bleu marine</li>
+                                <li>Gris foncé</li>
+                                <li>Noir</li>
+                            </ul>
+                        `;
+                    }
+                    if (currentWeather === "clear") {
+                        return `
+                            <h2>🎨 Couleurs du jour</h2>
+                            <p>Soleil présent. Couleurs lumineuses recommandées :</p>
+                            <ul>
+                                <li>Blanc</li>
+                                <li>Beige</li>
+                                <li>Bleu ciel</li>
+                            </ul>
+                        `;
+                    }
+                    return `
+                        <h2>🎨 Couleurs du jour</h2>
+                        <p>Ciel couvert. Palette neutre idéale :</p>
+                        <ul>
+                            <li>Gris</li>
+                            <li>Vert olive</li>
+                            <li>Noir</li>
+                        </ul>
+                    `;
+
+                case "Tendances":
+                    return `
+                        <h2>📈 Tendances du moment</h2>
+                        <p>${currentWeather === "rain"
+                            ? "Les looks urbains imperméables sont très populaires aujourd’hui."
+                            : currentWeather === "clear"
+                                ? "Les tenues légères et lumineuses dominent les tendances."
+                                : "Les looks minimalistes et neutres sont très appréciés."}</p>
+
+                        <p>${currentHour < 12
+                            ? "Matin : styles simples et confortables."
+                            : currentHour < 18
+                                ? "Après-midi : looks dynamiques et colorés."
+                                : "Soir : styles élégants et sombres."}</p>
+                    `;
+
+                case "Accessoires":
+                    return `
+                        <h2>👜 Accessoires recommandés</h2>
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : privilégiez des accessoires résistants à l’eau."
+                            : "Temps sec : accessoires légers recommandés."}</p>
+
+                        <ul>
+                            <li>${currentHour < 18 ? "Montre minimaliste" : "Bracelet élégant"}</li>
+                            <li>${currentWeather === "clear" ? "Lunettes de soleil" : "Accessoire discret"}</li>
+                            <li>Sac compact</li>
+                        </ul>
+                    `;
+
+                case "Coiffure":
+                    return `
+                        <h2>💇 Coiffure du jour</h2>
+                        <p>${currentWeather === "rain"
+                            ? "Humidité élevée : privilégiez une coiffure fixée."
+                            : "Temps sec : coiffure naturelle recommandée."}</p>
+
+                        <p>${currentHour < 12
+                            ? "Matin : style simple et propre."
+                            : "Après-midi/soir : style plus structuré possible."}</p>
+                    `;
+
+                case "Look minimaliste":
+                    return `
+                        <h2>✨ Look minimaliste</h2>
+                        <p>${currentWeather === "clear"
+                            ? "Soleil : minimalisme lumineux recommandé."
+                            : "Temps couvert : minimalisme neutre idéal."}</p>
+
+                        <ul>
+                            <li>T-shirt uni</li>
+                            <li>Pantalon simple</li>
+                            <li>Baskets propres</li>
+                        </ul>
+                    `;
+
+                case "Palette alternative":
+                    return `
+                        <h2>🎨 Palette alternative</h2>
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : couleurs profondes recommandées."
+                            : currentWeather === "clear"
+                                ? "Soleil : couleurs pastel idéales."
+                                : "Temps couvert : couleurs terre et neutres."}</p>
+
+                        <ul>
+                            <li>${currentWeather === "clear" ? "Rose pâle" : "Vert olive"}</li>
+                            <li>${currentTemp >= 20 ? "Beige chaud" : "Gris anthracite"}</li>
+                            <li>${currentHour >= 18 ? "Bordeaux" : "Bleu doux"}</li>
+                        </ul>
+                    `;
+
+
+                case "Look météo":
+                    if (currentWeather === "rain") {
+                        return `
+                            <h2>🌧️ Look météo</h2>
+                            <p>Pluie sur ${currentCity}.</p>
+                            <ul>
+                                <li>Couleurs sombres</li>
+                                <li>Matières imperméables</li>
+                                <li>Chaussures fermées</li>
+                            </ul>
+                        `;
+                    }
+                    if (currentWeather === "clear") {
+                        return `
+                            <h2>☀️ Look météo</h2>
+                            <p>Soleil présent.</p>
+                            <ul>
+                                <li>Blanc</li>
+                                <li>Beige</li>
+                                <li>Bleu ciel</li>
+                            </ul>
+                        `;
+                    }
+                    return `
+                        <h2>☁️ Look météo</h2>
+                        <p>Ciel couvert. Palette neutre idéale.</p>
+                    `;
+
+                case "IA Style":
+                    return `
+                        <h2>🤖 IA Style</h2>
+                        <p>${currentWeather === "rain" ? "Style urbain imperméable recommandé." : "Style équilibré selon vos préférences."}</p>
+                        <p>${currentTemp >= 22 ? "Privilégiez des matières légères." : ""}</p>
+                    `;
+
+                case "Look premium":
+                    return `
+                        <h2>👔 Look premium</h2>
+                        <p>${currentWeather === "clear" ? "Soleil → Look lumineux." : "Temps couvert → Look chic et sombre."}</p>
+                        <ul>
+                            <li>Chemise blanche</li>
+                            <li>Pantalon beige</li>
+                            <li>Veste bleu marine</li>
+                        </ul>
+                    `;
+
+                case "Dressing":
+                    return `
+                        <h2>🧳 Dressing intelligent</h2>
+                        <p>Narcisse sélectionne des tenues adaptées à la météo.</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : privilégiez des pièces imperméables et foncées."
+                            : currentWeather === "clear"
+                                ? "Soleil : optez pour des matières légères et des couleurs claires."
+                                : "Temps couvert : looks neutres et polyvalents recommandés."}</p>
+
+                        <p>${currentTemp <= 10
+                            ? "Il fait froid : ajoutez une couche chaude."
+                            : currentTemp >= 20
+                                ? "Il fait chaud : tenue respirante recommandée."
+                                : "Température douce : liberté totale dans vos choix."}</p>
+                    `;
+
+                case "Morphologie IA":
+                    return `
+                        <h2>🧍 Analyse morphologique IA</h2>
+                        <p>Narcisse adapte ses recommandations à votre silhouette.</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : privilégiez des matières structurées pour garder une silhouette nette."
+                            : "Temps sec : matières fluides et naturelles recommandées."}</p>
+
+                        <p>${currentHour < 12
+                            ? "Matin : looks simples et équilibrés."
+                            : "Après-midi/soir : looks plus travaillés possibles."}</p>
+                    `;
+
+                case "Optimisation dressing":
+                    return `
+                        <h2>🧠 Optimisation dressing</h2>
+                        <p>Narcisse analyse votre dressing selon la météo.</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : évitez les matières sensibles à l’eau."
+                            : currentWeather === "clear"
+                                ? "Soleil : explorez des tenues plus légères."
+                                : "Temps couvert : looks neutres et élégants recommandés."}</p>
+
+                        <p>Suggestions du jour :</p>
+                        <ul>
+                            <li>${currentTemp <= 10 ? "Look chaud et structuré" : "Look léger et confortable"}</li>
+                            <li>${currentHour < 18 ? "Tenue dynamique" : "Tenue élégante pour la soirée"}</li>
+                            <li>${currentWeather === "rain" ? "Look imperméable" : "Look polyvalent"}</li>
+                        </ul>
+                    `;
+
+                case "Couleurs peau":
+                    return `
+                        <h2>🎨 Couleurs adaptées à votre peau</h2>
+                        <p>Narcisse ajuste les couleurs selon la lumière et la météo.</p>
+
+                        <p>${currentWeather === "clear"
+                            ? "Lumière naturelle : couleurs claires et pastel idéales."
+                            : "Temps couvert : couleurs neutres et profondes recommandées."}</p>
+
+                        <ul>
+                            <li>${currentTemp >= 20 ? "Beige chaud" : "Bleu marine"}</li>
+                            <li>${currentHour >= 18 ? "Bordeaux" : "Vert olive"}</li>
+                            <li>${currentWeather === "rain" ? "Gris anthracite" : "Blanc cassé"}</li>
+                        </ul>
+                    `;
+
+                case "Mode météo+":
+                    if (currentWeather === "rain") {
+                        return `
+                            <h2>🌧️ Mode météo+</h2>
+                            <p>Pluie sur ${currentCity}.</p>
+                            <ul>
+                                <li>Matières imperméables</li>
+                                <li>Couleurs sombres</li>
+                                <li>Chaussures fermées</li>
+                                <li>Coupe-vent ou trench</li>
+                            </ul>
+                        `;
+                    }
+
+                    if (currentWeather === "clear") {
+                        return `
+                            <h2>☀️ Mode météo+</h2>
+                            <p>Soleil présent.</p>
+                            <ul>
+                                <li>Couleurs claires</li>
+                                <li>Matières légères</li>
+                                <li>Baskets respirantes</li>
+                                <li>Accessoires lumineux</li>
+                            </ul>
+                        `;
+                    }
+
+                    return `
+                        <h2>☁️ Mode météo+</h2>
+                        <p>Ciel couvert. Look neutre recommandé.</p>
+                        <ul>
+                            <li>Gris clair</li>
+                            <li>Vert olive</li>
+                            <li>Noir élégant</li>
+                        </ul>
+                    `;
+
+
+                /* ------------------ SANTE+ ------------------ */
+
+                case "Analyse IA":
+                    return `
+                        <h2>🧠 Analyse IA</h2>
+                        <p>${currentHour < 12 ? "Votre corps se réveille progressivement." : "Votre activité de la journée influence vos constantes."}</p>
+                        <p>${currentWeather === "rain" ? "Humidité élevée : attention aux tensions musculaires." : "Conditions météo favorables à une bonne énergie."}</p>
+                    `;
+
+                case "Sommeil avancé":
+                    return `
+                        <h2>😴 Sommeil avancé</h2>
+                        <p>${currentHour < 12 ? "Analyse du sommeil nocturne disponible." : "Votre sommeil influence votre énergie actuelle."}</p>
+                        <p>${currentWeather === "clear" ? "Le soleil améliore la récupération." : "Temps couvert : énergie plus stable."}</p>
+                    `;
+
+                case "Rapports":
+                    return `
+                        <h2>📊 Rapports santé</h2>
+                        <p>Température actuelle : ${currentTemp}°C</p>
+                        <p>${currentTemp <= 10 ? "Le froid peut augmenter la tension musculaire." : "Température confortable pour l’activité physique."}</p>
+                        <p>${currentWeather === "rain" ? "Pluie : risque de fatigue accru." : "Conditions météo stables."}</p>
+                    `;
+
+                case "HRV":
+                    return `
+                        <h2>📈 Variabilité cardiaque (HRV)</h2>
+                        <p>${currentHour < 12 ? "Votre HRV matinale reflète votre récupération." : "Votre HRV reflète votre stress de la journée."}</p>
+                        <p>${currentWeather === "rain" ? "Humidité : légère baisse de la variabilité possible." : "Météo stable : HRV cohérente."}</p>
+                    `;
+
+                case "Énergie du jour":
+                    return `
+                        <h2>⚡ Énergie du jour</h2>
+                        <p>${currentHour < 12 ? "Votre énergie monte progressivement." : "Votre énergie dépend de votre activité de la journée."}</p>
+                        <p>${currentTemp >= 20 ? "Chaleur : énergie plus volatile." : "Température stable : énergie régulière."}</p>
+                    `;
+
+                case "Respiration IA":
+                    return `
+                        <h2>🌬️ Analyse respiration IA</h2>
+                        <p>${currentWeather === "rain" ? "Humidité élevée : respiration plus lente recommandée." : "Air sec : respiration profonde idéale."}</p>
+                        <p>${currentHour >= 18 ? "Soirée : privilégiez une respiration relaxante." : ""}</p>
+                    `;
+
+                case "Hydratation IA":
+                    return `
+                        <h2>💧 Hydratation IA</h2>
+                        <p>${currentTemp >= 22 ? "Chaleur : augmentez votre hydratation." : "Hydratation normale recommandée."}</p>
+                        <p>${currentWeather === "rain" ? "Humidité : hydratation modérée." : ""}</p>
+                    `;
+
+                case "Programme bien-être":
+                    return `
+                        <h2>🧘 Programme bien-être</h2>
+                        <ul>
+                            <li>${currentHour < 12 ? "Étirements matinaux" : "Étirements relaxants"}</li>
+                            <li>${currentWeather === "rain" ? "Respiration lente (humidité élevée)" : "Respiration profonde"}</li>
+                            <li>${currentTemp >= 20 ? "Hydratation renforcée" : "Hydratation normale"}</li>
+                        </ul>
+                    `;
+
+
+                /* ------------------ TOUT INCLUS ------------------ */
+
+                case "Santé":
+                    return `
+                        <h2>❤️ Santé — Analyse complète</h2>
+                        <p>${currentHour < 12
+                            ? "Votre corps se réveille progressivement."
+                            : "Votre activité de la journée influence vos constantes."}</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : l’humidité peut augmenter les tensions musculaires."
+                            : "Conditions météo favorables à une bonne énergie."}</p>
+
+                        <p>Température actuelle : <b>${currentTemp}°C</b></p>
+                    `;
+
+                case "Mode":
+                    return `
+                        <h2>👗 Mode — Recommandation complète</h2>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : privilégiez des matières imperméables."
+                            : currentWeather === "clear"
+                                ? "Soleil : couleurs claires et matières légères recommandées."
+                                : "Ciel couvert : palette neutre idéale."}</p>
+
+                        <p>${currentTemp <= 10
+                            ? "Il fait froid : ajoutez une couche chaude."
+                            : currentTemp >= 20
+                                ? "Il fait chaud : optez pour des vêtements respirants."
+                                : "Température douce : tenue polyvalente."}</p>
+                    `;
+
+                case "IA Complète":
+                    return `
+                        <h2>🤖 IA Complète</h2>
+                        <p>Narcisse combine santé + météo + style pour une analyse globale.</p>
+
+                        <ul>
+                            <li>Météo : ${currentWeather}</li>
+                            <li>Température : ${currentTemp}°C</li>
+                            <li>Heure : ${currentHour}h</li>
+                            <li>Ville : ${currentCity}</li>
+                        </ul>
+
+                        <p>Recommandation globale : ${currentWeather === "rain"
+                            ? "Look imperméable + hydratation modérée"
+                            : currentTemp >= 20
+                                ? "Tenue légère + hydratation renforcée"
+                                : "Style polyvalent + routine bien-être"
+                        }</p>
+                    `;
+
+                case "Essayage 3D":
+                    return `
+                        <h2>🧍‍♂️ Essayage 3D</h2>
+                        <p>Narcisse adapte les suggestions selon la météo.</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : essayez un manteau imperméable."
+                            : currentWeather === "clear"
+                                ? "Soleil : essayez une tenue légère et lumineuse."
+                                : "Temps couvert : essayez un look neutre et élégant."}</p>
+
+                        <p>Température : ${currentTemp}°C</p>
+                    `;
+
+
+                case "Routine complète":
+                    return `
+                        <h2>🔄 Routine complète</h2>
+                        <ul>
+                            <li>${currentHour < 12 ? "🌅 Hydratation + étirements matinaux" : "🌙 Relaxation + respiration lente"}</li>
+                            <li>${currentWeather === "rain" ? "🌧️ Look imperméable recommandé" : "☀️ Look lumineux conseillé"}</li>
+                            <li>${currentTemp <= 10 ? "🧥 Prévoir une couche chaude" : "😎 Tenue légère possible"}</li>
+                        </ul>
+                    `;
+
+                case "Prévision 24h":
+                    return `
+                        <h2>📅 Prévision 24h</h2>
+                        <p>Narcisse analyse les tendances météo pour les prochaines heures.</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "La pluie devrait persister. Préparez un look imperméable."
+                            : currentWeather === "clear"
+                                ? "Le ciel restera dégagé. Conditions idéales."
+                                : "Ciel variable prévu. Look polyvalent recommandé."}</p>
+
+                        <p>Température actuelle : ${currentTemp}°C</p>
+                    `;
+
+
+
+                case "Look & Mood":
+                    return `
+                        <h2>🎭 Look & Mood</h2>
+                        <p>Narcisse adapte votre style à votre humeur + la météo.</p>
+
+                        <p>${currentWeather === "rain"
+                            ? "Pluie : privilégiez un look confortable et sombre."
+                            : currentWeather === "clear"
+                                ? "Soleil : optez pour un look lumineux et énergique."
+                                : "Temps couvert : look neutre et équilibré."}</p>
+
+                        <p>${currentHour < 12
+                            ? "Matin : couleurs douces recommandées."
+                            : currentHour < 18
+                                ? "Après-midi : palette dynamique."
+                                : "Soir : couleurs profondes et élégantes."}</p>
+                    `;
+
+
+                case "Analyse totale":
+                    return `
+                        <h2>🧬 Analyse totale</h2>
+                        <p>Narcisse combine toutes les données :</p>
+                        <ul>
+                            <li>Météo : ${currentWeather}</li>
+                            <li>Température : ${currentTemp}°C</li>
+                            <li>Heure : ${currentHour}h</li>
+                            <li>Ville : ${currentCity}</li>
+                        </ul>
+                    `;
+
+                default:
+                    return `<p>Narcisse réfléchit...</p>`;
+            }
+        }
+
+
+
+    </script>
